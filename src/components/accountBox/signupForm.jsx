@@ -1,90 +1,170 @@
 import React, { useContext } from "react";
 import {
+  BoldLink,
   BoxContainer,
+  FieldContainer,
+  FieldError,
   FormContainer,
   Input,
-  SubmitButton,
   MutedLink,
-  BoldLink,
+  SubmitButton,
 } from "./common";
 import { Marginer } from "../marginer";
 import { AccountContext } from "./accountContext";
-import useForm from "./useForm";
-import validate from "./validInfo";
+import { useFormik, yupToFormErrors } from "formik";
+import * as yup from "yup";
 
-export function SignupForm({ submitForm }) {
+const PASSWORD_REGEX =
+  "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])(?=.{8,})";
+
+const validationSchema = yup.object({
+  fullName: yup
+    .string()
+    .min(3, "Enter your real name")
+    .required("Full Name is required!"),
+  address: yup.string().required("Enter a valid Address"),
+  number: yup.string().required("Enter a valid number"),
+  email: yup.string().email("Enter a valid email address").required(),
+  password: yup
+    .string()
+    .matches(PASSWORD_REGEX, "Please enter a strong password")
+    .required(),
+  password2: yup.string().when("password", {
+    is: (val) => (val && val.length > 0 ? true : false),
+    then: yup.string().oneOf([yup.ref("password")], "Password does not match"),
+  }),
+});
+export function SignupForm(props) {
   const { switchToSignin } = useContext(AccountContext);
 
-  const { handleChange, values, handleSubmit, errors } = useForm(
-    validate,
-    submitForm
-  );
+  const onSubmit = (values) => {
+    alert(JSON.stringify(values));
+  };
+
+  const formik = useFormik({
+    initialValues: {
+      fullName: "",
+      address: "",
+      number: "",
+      email: "",
+      password: "",
+      password2: "",
+    },
+    validateOnBlur: true,
+    onSubmit,
+    validationSchema: validationSchema,
+  });
+
+  console.log("Error: ", formik.errors);
 
   return (
     <BoxContainer>
-      <FormContainer onSubmit={handleSubmit}>
-        <Input
-          id="Fullname"
-          type="text"
-          placeholder="Full Name"
-          value={values.fullname}
-          onChange={handleChange}
-        />
-        {errors.username && <p>{errors.fullname}</p>}
-        <Input
-          id="address"
-          type="text"
-          placeholder="Address"
-          name="address"
-          value={values.address}
-          onChange={handleChange}
-        />
-        {errors.address && <p>{errors.address}</p>}
-        <Input
-          id="number"
-          type="number"
-          placeholder="Phone Number"
-          name="number"
-          value={values.number}
-          onChange={handleChange}
-        />
-        {errors.number && <p>{errors.number}</p>}
-        <Input
-          id="email"
-          type="email"
-          placeholder="Email"
-          name="email"
-          value={values.email}
-          onChange={handleChange}
-        />
-        {errors.email && <p>{errors.email}</p>}
-        <Input
-          id="password"
-          type="password"
-          placeholder="Password"
-          name="password"
-          value={values.password}
-          onChange={handleChange}
-        />
-        {errors.password && <p>{errors.password}</p>}
-        <Input
-          id="password2"
-          type="password"
-          placeholder="Confirm Password"
-          name="password2"
-          value={values.password2}
-          onChange={handleChange}
-        />
-        {errors.password2 && <p>{errors.password2}</p>}
+      <FormContainer onSubmit={formik.handleSubmit}>
+        <FieldContainer>
+          <Input
+            name="fullName"
+            type="text"
+            placeholder="Full Name"
+            value={formik.values.fullName}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          <FieldError>
+            {formik.touched.fullName && formik.errors.fullName
+              ? formik.errors.fullName
+              : ""}
+          </FieldError>
+        </FieldContainer>
+
+        <FieldContainer>
+          <Input
+            name="address"
+            type="address"
+            placeholder="Address"
+            value={formik.values.address}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          <FieldError>
+            {formik.touched.address && formik.errors.address
+              ? formik.errors.address
+              : ""}
+          </FieldError>
+        </FieldContainer>
+
+        <FieldContainer>
+          <Input
+            name="number"
+            type="number"
+            placeholder="Number"
+            value={formik.values.number}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          <FieldError>
+            {formik.touched.number && formik.errors.number
+              ? formik.errors.number
+              : ""}
+          </FieldError>
+        </FieldContainer>
+
+        <FieldContainer>
+          <Input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={formik.values.email}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          <FieldError>
+            {formik.touched.email && formik.errors.email
+              ? formik.errors.email
+              : ""}
+          </FieldError>
+        </FieldContainer>
+
+        <FieldContainer>
+          <Input
+            name="password"
+            type="password"
+            placeholder="Password"
+            value={formik.values.password}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          <FieldError>
+            {formik.touched.password && formik.errors.password
+              ? formik.errors.password
+              : ""}
+          </FieldError>
+        </FieldContainer>
+
+        <FieldContainer>
+          <Input
+            name="password2"
+            type="password"
+            placeholder="Confirm Password"
+            value={formik.values.password2}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          <FieldError>
+            {formik.touched.password2 && formik.errors.password2
+              ? formik.errors.password2
+              : ""}
+          </FieldError>
+        </FieldContainer>
+        <Marginer direction="vertical" margin={10} />
+        <SubmitButton type="submit">Signup</SubmitButton>
       </FormContainer>
-      <Marginer direction="vertical" margin="1em" />
-      <SubmitButton type="submit">SignUp</SubmitButton>
+
       <Marginer direction="vertical" margin="1em" />
       <MutedLink href="#">
-        Already have an account?{" "}
+        Already have an account?
         <BoldLink href="#" onClick={switchToSignin}>
-          Sign In
-        </BoldLink>{" "}
+          Signin
+        </BoldLink>
       </MutedLink>
     </BoxContainer>
   );

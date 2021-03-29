@@ -71,3 +71,15 @@ export const SubmitButton = styled.button`
     filter: brightness(1.05);
   }
 `;
+
+export const FieldContainer = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+`;
+
+export const FieldError = styled.div`
+  color: #be0e0e;
+  font-size: 11px;
+  min-height: 18px;
+`;
